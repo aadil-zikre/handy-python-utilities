@@ -1,4 +1,4 @@
-from az_common_funcs import *
+# from az_common_funcs import *
 
 import pandas as pd
 import psycopg2
