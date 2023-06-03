@@ -27,13 +27,12 @@ class pgdao:
         
     def _init_cursor(self):
         if not self.conn or self.conn.closed!=0:
-            self.init_connection()
+            self._init_connection()
         self.cursor = self.conn.cursor(cursor_factory=RealDictCursor)
     
     def change_database(self,database):
         self.database = database
-        self.init_engine()
-        self.init_cursor()
+        self._init_connection()
 
     def _query_builder(self, query_str, params):
         if not isinstance(query_str, str): 
