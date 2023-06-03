@@ -75,8 +75,9 @@ class pgdao:
             row_count = min(self.cursor.rowcount, max_size)
             print(f"Rows found :: {self.cursor.rowcount}, Rows to retrieve :: {row_count}")
             while self.cursor.rownumber < row_count:
-                print(f"Fetching next {min(batch_size, row_count-self.cursor.rownumber):_} rows")
-                df_list.append(pd.DataFrame(self.cursor.fetchmany(batch_size)))
+                fetch_size = min(batch_size, row_count-self.cursor.rownumber)
+                print(f"Fetching next {fetch_size:_} rows")
+                df_list.append(pd.DataFrame(self.cursor.fetchmany(fetch_size)))
             self.conn.rollback()
             return pd.concat(df_list, ignore_index=True)
     
