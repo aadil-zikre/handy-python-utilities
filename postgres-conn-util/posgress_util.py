@@ -72,9 +72,9 @@ class pgdao:
             print(f"Executing Query : \n{self.cursor.mogrify(final_query, params)!r}")
             self.cursor.execute(final_query, params)
             df_list = []
-            row_count = max(self.cursor.rowcount, max_size)
+            row_count = min(self.cursor.rowcount, max_size)
             print(f"Rows found :: {self.cursor.rowcount}, Rows to retrieve :: {row_count}")
-            while self.cursor.rownumber <= row_count:
+            while self.cursor.rownumber < row_count:
                 print(f"Fetching next {min(batch_size, row_count-self.cursor.rownumber):_} rows")
                 df_list.append(self.cursor.fetchmany(batch_size))
             self.conn.rollback()
