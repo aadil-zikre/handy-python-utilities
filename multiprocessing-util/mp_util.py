@@ -32,7 +32,11 @@ thread_name_prefix = ''
 mp_context = None
 max_tasks_per_child = None
 
-def run_in_parallel(fn_specs, threaded=threaded, max_workers=max_workers, thread_name_prefix=thread_name_prefix, mp_context=mp_context, max_tasks_per_child=max_tasks_per_child):
+# for logging
+log_func = print
+log_at = 10_000
+
+def run_in_parallel(fn_specs, threaded=threaded, max_workers=max_workers, thread_name_prefix=thread_name_prefix, mp_context=mp_context, max_tasks_per_child=max_tasks_per_child, log_at=log_at, log_func=log_func, log_progress = False):
     """
     Run function concurrently or paralelly
 
@@ -64,6 +68,7 @@ def run_in_parallel(fn_specs, threaded=threaded, max_workers=max_workers, thread
 
     func_list = [i[0] for i in fn_specs]
     kwargs_list = [i[1] for i in fn_specs]
+    len_func_list = len(func_list)
 
     if threaded:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix=thread_name_prefix) as executor:
@@ -72,7 +77,9 @@ def run_in_parallel(fn_specs, threaded=threaded, max_workers=max_workers, thread
             exceptions = []
             for fn, kwargs in zip(func_list,kwargs_list):
                 futures.update({executor.submit(fn, **kwargs) : kwargs})
-            for future in concurrent.futures.as_completed(futures):
+            for num_future, future in enumerate(concurrent.futures.as_completed(futures)):
+                if (log_progress) & (num_future%log_at == 0):
+                    log_func(f"Execution of {num_future}/{len_func_list} complete.")
                 try:
                     result = future.result()
                     results.append((futures[future], result))
@@ -88,7 +95,9 @@ def run_in_parallel(fn_specs, threaded=threaded, max_workers=max_workers, thread
             exceptions = []
             for fn, kwargs in zip(func_list,kwargs_list):
                 futures.update({executor.submit(fn, **kwargs) : kwargs})
-            for future in concurrent.futures.as_completed(futures):
+            for num_future, future in enumerate(concurrent.futures.as_completed(futures)):
+                if (log_progress) & (num_future%log_at == 0):
+                    log_func(f"Execution of {num_future}/{len_func_list} complete.")
                 try:
                     result = future.result()
                     results.append((futures[future], result))

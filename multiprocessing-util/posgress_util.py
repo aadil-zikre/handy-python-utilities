@@ -45,7 +45,7 @@ class pgdao:
         
         return query_str
     
-    def query(self, query_str, params = {}, dry_run=False):
+    def query(self, query_str, params = {}, dry_run=False, show_query=True):
         final_query = self._query_builder(query_str, params)
         if not self.cursor or self.cursor.closed != 0:
             self._init_cursor()
@@ -53,7 +53,8 @@ class pgdao:
         if dry_run:
             print(f"Dry Run Query : \n{self.cursor.mogrify(final_query, params)!r}")
         else:
-            print(f"Executing Query : \n{self.cursor.mogrify(final_query, params)!r}")
+            if show_query:
+                print(f"Executing Query : \n{self.cursor.mogrify(final_query, params)!r}")
             self.cursor.execute(final_query, params)
             rows = self.cursor.fetchall()
             res_df = pd.DataFrame(rows)
